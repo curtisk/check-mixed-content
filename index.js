@@ -21,41 +21,85 @@ let crawler = new Crawler({
     onSuccess: function (data) {
         let bad = false
         let active = false
+        let problemResources = ''
         let $ = cheerio.load(data.body)
         $('img').each(function () {
-            if ($(this).attr('src')) bad = $(this).attr('src').indexOf('http:') > -1
-            if ($(this).attr('srcset')) bad = $(this).attr('srcset').indexOf('http:') > -1
+            if ($(this).attr('src') && $(this).attr('src').indexOf('http:') > -1){
+                bad =  true
+                problemResources += '\t' + $(this).attr('src')+ '\n'
+            } 
+            if ($(this).attr('srcset') && $(this).attr('srcset').indexOf('http:') > -1){
+                bad =  true
+                problemResources += '\t' + $(this).attr('srcset')+ '\n'
+            }
         })
         $('iframe').each(function () {
-            if ($(this).attr('src')) active = $(this).attr('src').indexOf('http:') > -1
+            if ($(this).attr('src') && $(this).attr('src').indexOf('http:') > -1){
+                active = true
+                problemResources += '\t' + $(this).attr('src')+ '\n'
+            }
         })
         $('script').each(function () {
-            if ($(this).attr('src')) active = $(this).attr('src').indexOf('http:') > -1
+            if ($(this).attr('src') && $(this).attr('src').indexOf('http:') > -1){
+                active = true
+                problemResources += '\t' + $(this).attr('src')+ '\n'
+            }
         })
         $('object').each(function () {
-            if ($(this).attr('data')) active = $(this).attr('data').indexOf('http:') > -1
+            if ($(this).attr('data') && $(this).attr('data').indexOf('http:') > -1){
+                active = true
+                problemResources += '\t' + $(this).attr('data')+ '\n'
+            }
         })
         $('form').each(function () {
-            if ($(this).attr('action')) bad = $(this).attr('action').indexOf('http:') > -1
+            if ($(this).attr('action') && $(this).attr('action').indexOf('http:') > -1){
+                bad =  true
+                problemResources += '\t' + $(this).attr('action')+ '\n'
+            } 
         })
         $('embed').each(function () {
-            if ($(this).attr('src')) active = $(this).attr('src').indexOf('http:') > -1
+            if ($(this).attr('src') && $(this).attr('src').indexOf('http:') > -1){
+                active = true
+                problemResources += '\t' + $(this).attr('src')+ '\n'
+            }
         })
         $('video').each(function () {
-            if ($(this).attr('src')) bad = $(this).attr('src').indexOf('http:') > -1
+            if ($(this).attr('src') && $(this).attr('src').indexOf('http:') > -1){
+                bad =  true
+                problemResources += '\t' + $(this).attr('src')+ '\n'
+            } 
         })
         $('audio').each(function () {
-            if ($(this).attr('src')) bad = $(this).attr('src').indexOf('http:') > -1
+            if ($(this).attr('src') && $(this).attr('src').indexOf('http:') > -1){
+                bad =  true
+                problemResources += '\t' + $(this).attr('src')+ '\n'
+            } 
         })
         $('source').each(function () {
-            if ($(this).attr('src')) bad = $(this).attr('src').indexOf('http:') > -1
-            if ($(this).attr('srcset')) bad = $(this).attr('srcset').indexOf('http:') > -1
+            if ($(this).attr('src') && $(this).attr('src').indexOf('http:') > -1){
+                bad =  true
+                problemResources += '\t' + $(this).attr('src')+ '\n'
+            } 
+            if ($(this).attr('srcset') && $(this).attr('srcset').indexOf('http:') > -1){
+                bad =  true
+                problemResources += '\t' + $(this).attr('srcset')+ '\n'
+            } 
         })
         $('param').each(function () {
-            if ($(this).attr('value')) active = $(this).attr('value').indexOf('http:') > -1
+            if ($(this).attr('value') && $(this).attr('value').indexOf('http:') > -1){
+                active = true
+                problemResources += '\t' + $(this).attr('value')+ '\n'
+            }
         })
         $('link').each(function () {
-            if ($(this).attr('href')) active = $(this).attr('href').indexOf('http:') > -1
+            if ($(this).attr('href') && $(this).attr('href').indexOf('http:') > -1){
+                active = true
+                problemResources += '\t' + $(this).attr('href')+ '\n'
+            }
+            if ($(this).attr('rel') && $(this).attr('rel').indexOf('http:') > -1){
+                active = true
+                problemResources += '\t' + $(this).attr('rel')+ '\n'
+            }
         })
         if (active || bad) {
             if (active) {
@@ -64,8 +108,10 @@ let crawler = new Crawler({
             }
             else {
                 console.log(`===> ${data.url} has mixed content!`)
+                badCount++
             }
-            badCount++
+            // badCount++
+            console.log('\t These are the references that need to be addressed in this file: \n' + problemResources)
         }
         else {
             console.log(`${data.url} is good!`)
